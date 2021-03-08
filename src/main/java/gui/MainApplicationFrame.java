@@ -25,30 +25,32 @@ import log.Logger;
 public class MainApplicationFrame extends JFrame
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
-    
+
+    private static final int PIXEL_INSET = 50;
+    private static final int WINDOW_WIDTH = 400;
+    private static final int WINDOW_HEIGHT = 400;
+
+
     public MainApplicationFrame() {
-        //Make the big window be indented 50 pixels from each edge
-        //of the screen.
-        int inset = 50;        
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setBounds(inset, inset,
-            screenSize.width  - inset*2,
-            screenSize.height - inset*2);
+        setBounds(PIXEL_INSET, PIXEL_INSET,
+            screenSize.width  - PIXEL_INSET * 2,
+            screenSize.height - PIXEL_INSET * 2);
 
         setContentPane(desktopPane);
-        
-        
+
+
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
 
         GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400,  400);
+        gameWindow.setSize(WINDOW_WIDTH,  WINDOW_HEIGHT);
         addWindow(gameWindow);
 
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
-    
+
     protected LogWindow createLogWindow()
     {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
@@ -59,7 +61,7 @@ public class MainApplicationFrame extends JFrame
         Logger.debug("Протокол работает");
         return logWindow;
     }
-    
+
     protected void addWindow(JInternalFrame frame)
     {
         desktopPane.add(frame);
