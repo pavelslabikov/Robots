@@ -1,8 +1,8 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
@@ -12,7 +12,6 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -30,8 +29,8 @@ public class MainApplicationFrame extends JFrame
     private final JDesktopPane desktopPane = new JDesktopPane();
 
     private static final int PIXEL_INSET = 50;
-    private static final int WINDOW_WIDTH = 400;
-    private static final int WINDOW_HEIGHT = 400;
+    private static final Dimension GAME_WINDOW_SIZE = new Dimension(400, 400);
+    private static final Dimension LOG_WINDOW_SIZE = new Dimension(300, 800);
 
 
     public MainApplicationFrame() {
@@ -41,34 +40,32 @@ public class MainApplicationFrame extends JFrame
             screenSize.height - PIXEL_INSET * 2);
 
         setContentPane(desktopPane);
-
-
-        LogWindow logWindow = createLogWindow();
-        addWindow(logWindow);
-
-        GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(WINDOW_WIDTH,  WINDOW_HEIGHT);
-        addWindow(gameWindow);
-
+        addWindows(createLogWindow(), createGameWindow());
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
 
-    protected LogWindow createLogWindow()
-    {
+    protected LogWindow createLogWindow() {
         LogWindow logWindow = new LogWindow(Logger.getDefaultLogSource());
         logWindow.setLocation(10,10);
-        logWindow.setSize(300, 800);
+        logWindow.setSize(LOG_WINDOW_SIZE);
         setMinimumSize(logWindow.getSize());
         logWindow.pack();
         Logger.debug("Протокол работает");
         return logWindow;
     }
 
-    protected void addWindow(JInternalFrame frame)
-    {
-        desktopPane.add(frame);
-        frame.setVisible(true);
+    protected GameWindow createGameWindow() {
+        GameWindow gameWindow = new GameWindow();
+        gameWindow.setSize(GAME_WINDOW_SIZE);
+        return gameWindow;
+    }
+
+    protected void addWindows(JInternalFrame... windows) {
+        for (var window : windows) {
+            desktopPane.add(window);
+            window.setVisible(true);
+        }
     }
     
 //    protected JMenuBar createMenuBar() {
@@ -112,14 +109,14 @@ public class MainApplicationFrame extends JFrame
         JMenuItem systemMenuItem = createMenuItem(
                 "Системная схема",
                 (event) -> {
-                    setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                    updateLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     this.invalidate();
                 });
 
         JMenuItem crossPlatformMenuItem = createMenuItem(
                 "Универсальная схема",
                 (event) -> {
-                    setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+                    updateLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
                     this.invalidate();
                 });
 
@@ -152,7 +149,7 @@ public class MainApplicationFrame extends JFrame
         return menu;
     }
 
-    private void setLookAndFeel(String className)
+    private void updateLookAndFeel(String className)
     {
         try
         {
