@@ -3,6 +3,7 @@ package gui;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 
@@ -12,6 +13,7 @@ import javax.swing.JInternalFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -68,84 +70,79 @@ public class MainApplicationFrame extends JFrame
         }
     }
     
-//    protected JMenuBar createMenuBar() {
-//        JMenuBar menuBar = new JMenuBar();
-// 
-//        //Set up the lone menu.
-//        JMenu menu = new JMenu("Document");
-//        menu.setMnemonic(KeyEvent.VK_D);
-//        menuBar.add(menu);
-// 
-//        //Set up the first menu item.
-//        JMenuItem menuItem = new JMenuItem("New");
-//        menuItem.setMnemonic(KeyEvent.VK_N);
-//        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-//                KeyEvent.VK_N, ActionEvent.ALT_MASK));
-//        menuItem.setActionCommand("new");
-////        menuItem.addActionListener(this);
-//        menu.add(menuItem);
-// 
-//        //Set up the second menu item.
-//        menuItem = new JMenuItem("Quit");
-//        menuItem.setMnemonic(KeyEvent.VK_Q);
-//        menuItem.setAccelerator(KeyStroke.getKeyStroke(
-//                KeyEvent.VK_Q, ActionEvent.ALT_MASK));
-//        menuItem.setActionCommand("quit");
-////        menuItem.addActionListener(this);
-//        menu.add(menuItem);
-// 
-//        return menuBar;
-//    }
+    protected JMenuBar createMenuBar() {
+        var menuBar = new JMenuBar();
+        var documentMenu = createMenu("Document", KeyEvent.VK_D, "");
+
+        var newMenuItem = createMenuItem("New", KeyEvent.VK_N,
+            KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK), "new");
+
+
+        var quitItem = createMenuItem("Quit", KeyEvent.VK_Q,
+            KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.ALT_MASK), "quit");
+
+        documentMenu.add(newMenuItem, quitItem);
+        menuBar.add(documentMenu);
+        return menuBar;
+    }
     
     private JMenuBar generateMenuBar()
     {
-        JMenuBar menuBar = new JMenuBar();
+        var menuBar = new JMenuBar();
 
-        JMenu displayModeMenu = createMenu(
-                "Режим отображения",
-                KeyEvent.VK_V,
-                "Управление режимом отображения приложения");
+        var displayModeMenu = createMenu("Режим отображения", KeyEvent.VK_V,
+            "Управление режимом отображения приложения");
 
-        JMenuItem systemMenuItem = createMenuItem(
-                "Системная схема",
+        JMenuItem systemMenuItem = createMenuItem("Системная схема", KeyEvent.VK_S,
                 (event) -> {
                     updateLookAndFeel(UIManager.getSystemLookAndFeelClassName());
                     this.invalidate();
                 });
 
-        JMenuItem crossPlatformMenuItem = createMenuItem(
-                "Универсальная схема",
+        JMenuItem crossPlatformMenuItem = createMenuItem("Универсальная схема", KeyEvent.VK_S,
                 (event) -> {
                     updateLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
                     this.invalidate();
                 });
 
-        displayModeMenu.add(systemMenuItem);
-        displayModeMenu.add(crossPlatformMenuItem);
-
         JMenu testMenu = createMenu("Тесты", KeyEvent.VK_T, "Тестовые команды");
 
-        JMenuItem logMessageItem = createMenuItem(
-                "Сообщение в лог",
+        JMenuItem logMessageItem = createMenuItem("Сообщение в лог", KeyEvent.VK_S,
                 (event) -> Logger.debug("Новая строка"));
 
+        displayModeMenu.add(systemMenuItem, crossPlatformMenuItem);
         testMenu.add(logMessageItem);
-
-        menuBar.add(displayModeMenu);
-        menuBar.add(testMenu);
+        menuBar.add(displayModeMenu, testMenu);
         return menuBar;
     }
 
-    private JMenuItem createMenuItem(String text, ActionListener listener) {
-        JMenuItem item = new JMenuItem(text, KeyEvent.VK_S);
+    private JMenuItem createMenuItem(String text,
+                                     int mnemonic,
+                                     ActionListener listener) {
+        JMenuItem item = new JMenuItem(text, mnemonic);
         item.addActionListener(listener);
         return item;
     }
 
-    private JMenu createMenu(String title, int mnemonic, String description) {
+    private JMenuItem createMenuItem(String text,
+                                     int mnemonic,
+                                     KeyStroke keyStroke,
+                                     String command) {
+        var menuItem = new JMenuItem(text, mnemonic);
+        menuItem.setAccelerator(keyStroke);
+        menuItem.setActionCommand(command);
+        return menuItem;
+    }
+
+    private JMenu createMenu(String title,
+                             int mnemonic,
+                             String description) {
         JMenu menu = new JMenu(title);
         menu.setMnemonic(mnemonic);
-        menu.getAccessibleContext().setAccessibleDescription(description);
+        if (!description.equals("")) {
+            menu.getAccessibleContext().setAccessibleDescription(description);
+        }
+
         return menu;
     }
 
